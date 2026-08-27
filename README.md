@@ -1,75 +1,208 @@
 # Culebrita
 
-Juego clásico tipo **Snake** hecho en **Java 11** con **Swing**. La culebra se mueve por una grilla, come, crece y termina la partida al chocar con un borde o con su propio cuerpo.
+Juego clásico tipo **Snake** desarrollado en **Java** utilizando **Swing**.
 
-## Qué hace el programa
+La aplicación permite controlar una serpiente sobre una cuadrícula, consumir comida,
+aumentar su longitud y obtener puntos. La partida termina al producirse una colisión
+con los límites del tablero o con el propio cuerpo de la serpiente.
 
-- **Controles de teclado:** menú, movimiento, pausa, reinicio y salida se manejan con el teclado (detalle en la tabla de abajo).
-- **Movimiento y crecimiento:** la culebra avanza una celda por ciclo. Si come, suma un segmento; si no, la cola se recorre y el tamaño se mantiene.
-- **Generación aleatoria de comida:** la manzana aparece en una celda libre al azar (nunca encima del cuerpo).
-- **Detección de colisiones:** choque con los bordes del tablero y con el propio cuerpo. Entrar en la celda de la cola al moverse (sin crecer) no cuenta como choque.
-- **Interfaz gráfica con Swing:** ventana `JFrame`, dibujo en `JPanel` (`paintComponent`), menú, HUD de puntaje y pantallas de pausa / Game Over.
-- **Ciclo de ejecución:** el avance del juego lo marca un `javax.swing.Timer` (el equivalente correcto en Swing a un hilo de juego: actualiza y pinta en el hilo de la interfaz, sin un `Thread` suelto).
-- **Game Over:** al perder se muestra el letrero, el puntaje de la partida y el récord. Se puede reiniciar con `R` o volver al menú con `ENTER`.
+## Funcionalidades principales
 
-## Extra (además del Snake básico)
-
-- **Menú inicial:** título, selector de dificultad (tres recuadros) y recuadro `ENTER` para empezar.
-- **Tres dificultades:** Fácil, Normal y Difícil (`1` / `2` / `3` o flechas izquierda/derecha en el menú). Cambia la velocidad del Timer.
-- **La partida se acelera:** cada 5 puntos el ciclo se acorta un poco, hasta un mínimo según la dificultad.
-- **Pausa:** `P` o `Espacio` congelan o reanudan la partida.
-- **Puntaje y récord:** el puntaje es de **esta** partida; el récord es el **mejor de siempre** y se guarda en el usuario de Windows (`Preferences`), aunque cierres el programa.
-- **Reinicio:** `R` arranca otra partida sin salir.
-- **Cabeza distinta de la cola** y comida dibujada como círculo, sobre una grilla oscura.
-- **Victoria rara:** si la culebra llena el tablero, se muestra “tablero completo”.
-- **Arquitectura:** lógica en `model` (`Game`, `Snake`, `Direction`), vista en `ui`, récord en `persist`.
-- **Tests JUnit 5** (con Maven): movimiento, no girar 180°, colisión con muro, crecimiento y comida fuera del cuerpo.
+- **Movimiento de la serpiente:** desplazamiento por una cuadrícula mediante teclado.
+- **Crecimiento:** la serpiente aumenta su longitud al consumir comida.
+- **Generación aleatoria de comida:** la comida se genera en una celda libre del tablero.
+- **Detección de colisiones:** control de colisiones contra los bordes y el propio cuerpo.
+- **Prevención de giro de 180°:** se bloquean cambios de dirección directamente opuestos.
+- **Sistema de puntuación:** se registra el puntaje de la partida actual.
+- **Récord persistente:** el mejor puntaje se conserva entre ejecuciones mediante
+  `java.util.prefs.Preferences`.
+- **Tres niveles de dificultad:** Fácil, Normal y Difícil.
+- **Velocidad progresiva:** la velocidad aumenta cada 5 puntos hasta alcanzar
+  un límite mínimo según la dificultad.
+- **Pausa:** permite pausar y reanudar la partida.
+- **Reinicio:** permite iniciar una nueva partida sin cerrar la aplicación.
+- **Menú inicial:** permite seleccionar la dificultad antes de comenzar.
+- **Game Over:** muestra el estado de finalización cuando ocurre una colisión.
+- **Victoria:** la partida finaliza cuando la serpiente ocupa todas las celdas disponibles.
+- **Interfaz gráfica:** tablero, serpiente, comida, puntaje, récord y estados del juego
+  renderizados mediante Java Swing.
 
 ## Controles
 
-| Tecla | Dónde | Acción |
-| --- | --- | --- |
-| `1` / `2` / `3` | Menú | Fácil / Normal / Difícil (también teclado numérico) |
-| Flechas izquierda / derecha | Menú | Cambiar dificultad |
-| `ENTER` | Menú | Empezar a jugar |
-| Flechas | Partida | Mover la culebra |
-| `P` o `Espacio` | Partida | Pausa / continuar |
-| `R` | Partida o Game Over | Reiniciar |
-| `ENTER` | Game Over | Volver al menú |
-| `ESC` | Menú o Game Over | Salir |
-| `ESC` | Partida | Volver al menú |
+| Tecla | Acción |
+|---|---|
+| `1` / `NumPad 1` | Seleccionar dificultad Fácil |
+| `2` / `NumPad 2` | Seleccionar dificultad Normal |
+| `3` / `NumPad 3` | Seleccionar dificultad Difícil |
+| `←` / `A` | Mover a la izquierda |
+| `→` / `D` | Mover a la derecha |
+| `↑` / `W` | Mover hacia arriba |
+| `↓` / `S` | Mover hacia abajo |
+| `P` / `Espacio` | Pausar / continuar |
+| `R` | Reiniciar partida |
+| `ENTER` | Iniciar / volver al menú |
+| `ESC` | Salir / volver al menú |
+
+## Dificultades
+
+El juego cuenta con tres niveles de dificultad:
+
+| Nivel | Velocidad inicial | Velocidad mínima |
+|---|---:|---:|
+| Fácil | 160 ms | 50 ms |
+| Normal | 110 ms | 40 ms |
+| Difícil | 70 ms | 30 ms |
+
+La velocidad se incrementa progresivamente cada 5 puntos, reduciendo el intervalo
+de actualización hasta alcanzar el límite mínimo definido para cada dificultad.
+
+## Arquitectura
+
+El proyecto utiliza una separación de responsabilidades entre el modelo,
+la interfaz gráfica y la persistencia de datos.
+
+```text
+
+src/main/java/culebrita/
+
+├── model/
+│   ├── Cell.java
+│   ├── Difficulty.java
+│   ├── Direction.java
+│   ├── Game.java
+│   ├── GamePhase.java
+│   ├── ScoreRepository.java
+│   └── Snake.java
+│
+├── ui/
+│   ├── GameFrame.java
+│   └── GamePanel.java
+│
+├── persist/
+│   └── PreferenceScoreRepository.java
+│
+└── CulebritaApp.java
+```
+
+## Capturas del juego
+
+### Menú principal
+
+![Menú principal](screenshots/menu.jpeg)
+
+El menú permite seleccionar entre los niveles de dificultad Fácil, Normal y Difícil
+antes de iniciar la partida.
+
+### Partida en ejecución
+
+![Partida en ejecución](screenshots/game-play.jpeg)
+
+Durante la partida se muestran el tablero, la serpiente, la comida, el puntaje,
+el récord y la dificultad seleccionada.
+
+### Game Over
+
+![Game Over](screenshots/game-over.jpeg)
+
+Al producirse una colisión se muestra el estado Game Over, el puntaje obtenido,
+el récord y las opciones disponibles para reiniciar, volver al menú o salir.
+
+## Pruebas automatizadas
+
+El proyecto utiliza **JUnit 5** para validar diferentes aspectos de la lógica
+del juego.
+
+Las pruebas incluyen:
+
+- Estado inicial de la partida.
+- Longitud inicial de la serpiente.
+- Bloqueo del giro de 180°.
+- Colisión con los bordes del tablero.
+- Crecimiento de la serpiente al consumir comida.
+- Incremento del puntaje.
+- Actualización del récord.
+- Generación de comida fuera del cuerpo de la serpiente.
+
+## Tecnologías
+
+- **Java 11+**
+- **Java Swing**
+- **Maven**
+- **JUnit 5**
+- `ArrayDeque`
+- `ArrayList`
+- `java.util.prefs.Preferences`
+- `javax.swing.Timer`
 
 ## Requisitos
 
-- JDK 11 o superior
+- **JDK 11 o superior**
+- **Maven** para ejecutar las pruebas y construir el proyecto.
 
-## Cómo ejecutar
+## Ejecución
 
-En Windows, desde la carpeta del proyecto:
+### Windows
+
+El proyecto incluye un script de ejecución:
 
 ```bat
 run.bat
 ```
 
-Con Maven (opcional):
+### Maven
+
+Ejecutar las pruebas:
 
 ```bash
 mvn test
-mvn exec:java
 ```
 
+Construir el proyecto:
+
 ```bash
-mvn -q package
+mvn package
+```
+
+Ejecutar el archivo `.jar` generado:
+
+```bash
 java -jar target/culebrita-1.0.0.jar
 ```
 
-## Cómo está organizado
+## Estructura del proyecto
 
+```text
+culebrita-java/
+│
+├── src/
+│   ├── main/
+│   │   └── java/
+│   │       └── culebrita/
+│   │           ├── model/
+│   │           ├── persist/
+│   │           ├── ui/
+│   │           └── CulebritaApp.java
+│   │
+│   └── test/
+│       └── java/
+│           └── culebrita/
+│               └── model/
+│                   └── GameTest.java
+│
+├── screenshots/
+│   ├── menu.jpeg
+│   ├── game-play.jpeg
+│   └── game-over.jpeg
+│
+├── .gitignore
+├── LICENSE
+├── pom.xml
+├── README.md
+└── run.bat
 ```
-src/main/java/culebrita/
-  CulebritaApp.java          punto de entrada
-  model/                     reglas del juego (sin Swing)
-  ui/                        ventana, dibujo y teclado
-  persist/                   récord guardado entre sesiones
-src/test/java/               pruebas del modelo
-```
+
+## Autor
+
+**Luis Felipe Correa Martínez**
+
+Proyecto desarrollado como práctica de programación en Java.
