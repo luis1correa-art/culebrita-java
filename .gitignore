@@ -1,0 +1,28 @@
+# Compilación
+target/
+out/
+build/
+dist/
+*.class
+*.jar
+*.war
+*.ear
+sources.txt
+
+# NetBeans
+nbproject/private/
+nbbuild/
+nbdist/
+
+# IntelliJ / Eclipse / VS Code
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
